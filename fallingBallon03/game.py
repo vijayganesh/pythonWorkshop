@@ -12,6 +12,7 @@ window_width = 600
 window_height = 800
 clock = pygame.time.Clock()
 FPS = 12
+lives = 3
 displaySize = (window_width,window_height)
 screen = pygame.display.set_mode(displaySize)
 pygame.display.set_caption("First Games Window")
@@ -23,12 +24,12 @@ actor = ac.Actor(window_width,window_height)
 falling_circles = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 all_sprites.add(actor)
-scoreboard = sc.scoreBoard(font="none",color=(255,255,255),size=24)
-speed = 10;
+scoreboard = sc.scoreBoard(font="none",color=(255,255,255),size=24,lives=lives)
+speed = 100
 # this should be 1 to have max speed
 genTrue = 0
 scores = 0
-lives = 3;
+#scoreupdate = (scores,lives)
 running = True
 while running:
     dt = clock.tick(FPS) / speed
@@ -44,12 +45,18 @@ while running:
         # Remove the circle if it hits the bottom boundary
         if circle.rect.top > window_height:
             circle.kill()
+            #lives -= 1
+            #scoreboard.update([scores,lives])
+            scoreboard.updatelife()
+            if(scoreboard.lives <= 0):
+                running = False
 
         # Check for collisions with the actor
         if pygame.sprite.collide_rect(circle, actor):
             #running = False  # End the game on collision
             scores += 1
-            scoreboard.update(scores)
+            scoreboard.updatepoints()
+            #scoreboard.update([scores,lives])
             circle.kill()
     # Update the actor
     actor.update()
@@ -76,6 +83,15 @@ while running:
     pygame.display.flip()
 
 
+## Display the Game over message if lives are not available 
+
+if scoreboard.lives <= 0:
+    gameExitFont = pygame.font.Font(None,100)
+    gameExit = scoreboard.font.render("Game Over  :( ", True, (255, 255, 255))
+    gameExitRect = gameExit.get_rect(center=(window_width//2,window_height//2))
+    screen.blit(gameExit,gameExitRect)
+    pygame.display.flip()
+    pygame.time.delay(2000)
 
 pygame.quit()
 sys.exit()
